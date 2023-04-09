@@ -10,7 +10,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/todoListDB", { useNewUrlParser: true });
+mongoose.connect("mongodb+srv://web-dev-user:ITxUC7JuB4UOdLAF@cluster0.krcfe.mongodb.net/todoListDB", { useNewUrlParser: true });
 
 const itemSchema = new mongoose.Schema({
   name: String
@@ -134,6 +134,6 @@ app.get("/about", function (req, res) {
   res.render("about");
 });
 
-app.listen(3000, function () {
-  console.log("Server is running on port 3000.")
+app.listen(process.env.PORT || 3000, function () {
+  console.log("Server is running")
 });
