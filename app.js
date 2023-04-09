@@ -10,7 +10,15 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/todoListDB", { useNewUrlParser: true });
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
 
 const itemSchema = new mongoose.Schema({
   name: String
@@ -86,7 +94,7 @@ app.post("/", async (req, res) => {
   const itemName = req.body.newItem;
   const listName = req.body.list;
   const todayName = date.getDate();
-  
+
   const newItem = new Item({
     name: itemName
   });
@@ -130,10 +138,12 @@ app.get("/:listName", async (req, res) => {
   }
 });
 
-app.get("/about", function (req, res) {
+app.get("/about", async (req, res) => {
   res.render("about");
 });
 
-app.listen(3000, function () {
-  console.log("Server is running on port 3000.")
-});
+connectDB().then(() => {
+  app.listen(process.env.PORT, () => {
+    console.log("Server is running")
+  });
+})
