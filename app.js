@@ -10,7 +10,15 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://web-dev-user:ITxUC7JuB4UOdLAF@cluster0.krcfe.mongodb.net/todoListDB", { useNewUrlParser: true });
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
 
 const itemSchema = new mongoose.Schema({
   name: String
@@ -86,7 +94,7 @@ app.post("/", async (req, res) => {
   const itemName = req.body.newItem;
   const listName = req.body.list;
   const todayName = date.getDate();
-  
+
   const newItem = new Item({
     name: itemName
   });
@@ -130,10 +138,12 @@ app.get("/:listName", async (req, res) => {
   }
 });
 
-app.get("/about", function (req, res) {
+app.get("/about", async (req, res) => {
   res.render("about");
 });
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log("Server is running")
-});
+connectDB().then(() => {
+  app.listen(process.env.PORT, () => {
+    console.log("Server is running")
+  });
+})
